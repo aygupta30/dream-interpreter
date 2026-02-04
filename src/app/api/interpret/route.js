@@ -21,32 +21,27 @@ export async function POST(request) {
 
         const completion = await openai.chat.completions.create({
             model: "gpt-4o",
+            response_format: { type: "json_object" },
             messages: [
                 {
                     role: "system", content: `You are a dream interpreter from r/DreamInterpretation. Interpret dreams using symbolic, psychological, and spiritual layers. Keep tone warm, insightful, and grounded.
 
-Please format your response exactly as follows:
-
-Dream: [Short summary of the dream]
-Tags: [Comma-separated tags]
-Mood: [One or two words describing the dream's mood]
-
-1. Symbol Summary
-[Analyze key symbols]
-
-2. Psychological Perspective
-[Interpret potential psychological meaning]
-
-3. Reflective Prompts
-[Provide 2-3 questions for the dreamer to ask themselves]
-
-4. Tone
-Supportive and reflective` },
+You MUST respond with a valid JSON object matching this structure:
+{
+  "dream_summary": "Short summary of the dream",
+  "tags": ["tag1", "tag2"],
+  "mood": "Mood description",
+  "symbolism": "Analysis of key symbols...",
+  "psychological_perspective": "Psychological meaning...",
+  "reflective_prompts": ["Question 1?", "Question 2?"],
+  "tone": "Supportive and reflective"
+}` },
                 { role: "user", content: `Here is my dream: ${dream}` },
             ],
         });
 
-        const interpretation = completion.choices[0].message.content;
+        const content = completion.choices[0].message.content;
+        const interpretation = JSON.parse(content);
         return NextResponse.json({ interpretation });
     } catch (error) {
         if (error instanceof OpenAI.APIError) {

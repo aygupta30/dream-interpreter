@@ -63,10 +63,40 @@ export default function Home() {
 
         {interpretation && (
           <div className="result-area">
-            <h2 className="result-title">Interpretation</h2>
-            <p className="result-text">
-              {interpretation}
-            </p>
+            {/* Header Section: Summary, Mood, Tags */}
+            <div className="mb-6 border-b border-white/10 pb-4">
+              <h2 className="result-title">Dream Analysis</h2>
+              <p className="mood-text"><strong>Mood:</strong> {interpretation.mood}</p>
+              <div className="tags-container">
+                {interpretation.tags?.map((tag, idx) => (
+                  <span key={idx} className="tag">{tag}</span>
+                ))}
+              </div>
+            </div>
+
+            {/* Main Content Grid */}
+            <div className="analysis-grid">
+
+              <div className="analysis-card">
+                <h3>🔮 Symbolism</h3>
+                <p>{interpretation.symbolism}</p>
+              </div>
+
+              <div className="analysis-card">
+                <h3>🧠 Psychological View</h3>
+                <p>{interpretation.psychological_perspective}</p>
+              </div>
+
+              <div className="analysis-card highlight">
+                <h3>🤔 Reflective Prompts</h3>
+                <ul>
+                  {interpretation.reflective_prompts?.map((prompt, idx) => (
+                    <li key={idx}>{prompt}</li>
+                  ))}
+                </ul>
+              </div>
+
+            </div>
           </div>
         )}
       </div>
