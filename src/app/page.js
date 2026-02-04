@@ -1,66 +1,75 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+import { useState } from 'react';
 
 export default function Home() {
+  const [dream, setDream] = useState('');
+  const [interpretation, setInterpretation] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!dream) return;
+    setLoading(true);
+    setInterpretation('');
+
+    try {
+      const res = await fetch('/api/interpret', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dream }),
+      });
+      const data = await res.json();
+      if (data.interpretation) {
+        setInterpretation(data.interpretation);
+      } else if (data.error) {
+        setInterpretation(`Error: ${data.error} ${data.details ? `(${data.details})` : ''}`);
+      }
+    } catch (error) {
+      console.error(error);
+      setInterpretation(`Something went wrong. Please check your console logs or ensure your API key is correct. Details: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.js file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <main className="container">
+      {/* Background Orbs */}
+      <div className="orb orb-1" />
+      <div className="orb orb-2" />
+
+      <div className="glass-panel">
+        <h1 className="title">Dream Interpreter</h1>
+        <p className="subtitle">
+          Unlock the secrets of your subconscious. Describe your dream below.
+        </p>
+
+        <form onSubmit={handleSubmit}>
+          <textarea
+            value={dream}
+            onChange={(e) => setDream(e.target.value)}
+            placeholder="I was flying over a golden ocean..."
+            className="dream-input"
+          />
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="submit-btn"
           >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+            {loading ? 'Consulting the Oracles...' : 'Interpret My Dream'}
+          </button>
+        </form>
+
+        {interpretation && (
+          <div className="result-area">
+            <h2 className="result-title">Interpretation</h2>
+            <p className="result-text">
+              {interpretation}
+            </p>
+          </div>
+        )}
+      </div>
+    </main>
   );
 }
