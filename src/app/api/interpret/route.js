@@ -43,20 +43,6 @@ You MUST respond with a valid JSON object matching this structure:
         const content = completion.choices[0].message.content;
         const interpretation = JSON.parse(content);
 
-        // Generate Image using DALL-E 3
-        try {
-            const imageResponse = await openai.images.generate({
-                model: "dall-e-3",
-                prompt: `A surreal, artistic, and abstract representation of this dream: ${interpretation.dream_summary} ${interpretation.tags.join(", ")}. Style: Mystical, deep colors, digital art, dreamscape. No text.`,
-                n: 1,
-                size: "1024x1024",
-            });
-            interpretation.imageUrl = imageResponse.data[0].url;
-        } catch (imgError) {
-            console.error("Image generation failed:", imgError);
-            // We proceed without image if it fails, so we don't block the interpretation
-        }
-
         return NextResponse.json({ interpretation });
     } catch (error) {
         if (error instanceof OpenAI.APIError) {

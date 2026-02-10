@@ -6,11 +6,16 @@ export default function Home() {
   const [interpretation, setInterpretation] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Image Generation State
+  const [imageUrl, setImageUrl] = useState('');
+  const [imageLoading, setImageLoading] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!dream) return;
     setLoading(true);
     setInterpretation('');
+    setImageUrl(''); // Reset image on new dream
 
     try {
       const res = await fetch('/api/interpret', {
@@ -29,6 +34,27 @@ export default function Home() {
       setInterpretation(`Something went wrong. Please check your console logs or ensure your API key is correct. Details: ${error.message}`);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGenerateImage = async () => {
+    if (!interpretation) return;
+    setImageLoading(true);
+    try {
+      const description = `${interpretation.dream_summary} ${interpretation.tags?.join(", ")}`;
+      const res = await fetch('/api/visualize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description }),
+      });
+      const data = await res.json();
+      if (data.imageUrl) {
+        setImageUrl(data.imageUrl);
+      }
+    } catch (error) {
+      console.error("Image generation failed", error);
+    } finally {
+      setImageLoading(false);
     }
   };
 
@@ -67,10 +93,19 @@ export default function Home() {
             <div className="mb-6 border-b border-white/10 pb-4">
               <h2 className="result-title">Dream Analysis</h2>
 
-              {interpretation.imageUrl && (
+              {imageUrl ? (
                 <div className="image-container">
-                  <img src={interpretation.imageUrl} alt="Dream Visualization" className="dream-image" />
+                  <img src={imageUrl} alt="Dream Visualization" className="dream-image" />
                 </div>
+              ) : (
+                <button
+                  onClick={handleGenerateImage}
+                  disabled={imageLoading}
+                  className="w-full py-3 mb-6 rounded-xl border border-dashed border-white/20 bg-white/5 hover:bg-white/10 transition-all text-sm text-purple-200 flex items-center justify-center gap-2 cursor-pointer"
+                  style={{ border: '1px dashed rgba(255,255,255,0.3)', width: '100%', padding: '1rem', marginTop: '1rem', marginBottom: '2rem', cursor: 'pointer', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', color: '#e0c3fc' }}
+                >
+                  {imageLoading ? 'Painting your dream...' : '✨ Visualize This Dream (Generate Image)'}
+                </button>
               )}
 
               <p className="mood-text"><strong>Mood:</strong> {interpretation.mood}</p>
