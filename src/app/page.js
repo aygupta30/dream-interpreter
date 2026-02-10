@@ -66,6 +66,13 @@ export default function Home() {
             {/* Header Section: Summary, Mood, Tags */}
             <div className="mb-6 border-b border-white/10 pb-4">
               <h2 className="result-title">Dream Analysis</h2>
+
+              {interpretation.imageUrl && (
+                <div className="image-container">
+                  <img src={interpretation.imageUrl} alt="Dream Visualization" className="dream-image" />
+                </div>
+              )}
+
               <p className="mood-text"><strong>Mood:</strong> {interpretation.mood}</p>
               <div className="tags-container">
                 {interpretation.tags?.map((tag, idx) => (
