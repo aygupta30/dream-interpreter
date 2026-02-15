@@ -26,8 +26,10 @@ export async function GET(request) {
         env_check: {
             CLERK_SECRET_KEY_EXISTS: !!secretKey,
             CLERK_SECRET_KEY_PREFIX: secretKey ? secretKey.substring(0, 7) : 'MISSING',
+            CLERK_SECRET_KEY_SUFFIX: secretKey ? '...' + secretKey.slice(-4) : 'MISSING',
             NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY_EXISTS: !!pubKey,
-            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY_PREFIX: pubKey ? pubKey.substring(0, 7) : 'MISSING'
+            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY_PREFIX: pubKey ? pubKey.substring(0, 7) : 'MISSING',
+            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY_SUFFIX: pubKey ? '...' + pubKey.slice(-4) : 'MISSING'
         }
     });
 }
