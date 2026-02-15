@@ -5,7 +5,7 @@ import { auth } from '@clerk/nextjs/server';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request) {
-    const { userId } = auth();
+    const { userId } = await auth();
     if (!userId) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -21,7 +21,7 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-    const { userId } = auth();
+    const { userId } = await auth();
     console.log("API POST /api/journal - Auth Check. UserId:", userId);
 
     if (!userId) {

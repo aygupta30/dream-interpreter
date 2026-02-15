@@ -1,9 +1,9 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-export default clerkMiddleware((auth, req) => {
+export default clerkMiddleware(async (auth, req) => {
     // Debug: Log if userId is present
-    const { userId } = auth();
+    const { userId } = await auth();
     console.log("Middleware Check - UserId:", userId);
 
     // Add header to confirm it ran AND what user it saw
