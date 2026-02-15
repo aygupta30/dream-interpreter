@@ -73,7 +73,7 @@ export default function JournalPage() {
 
                                     <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', color: '#fff' }}>{dream.interpretation.dream_summary}</h3>
                                     <p style={{ color: '#ccc', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.5rem' }}>
-                                        "{dream.dream_text.length > 150 ? dream.dream_text.substring(0, 150) + '...' : dream.dream_text}"
+                                        &quot;{dream.dream_text.length > 150 ? dream.dream_text.substring(0, 150) + '...' : dream.dream_text}&quot;
                                     </p>
 
                                     <div className="tags-container">
