@@ -67,6 +67,7 @@ export default function JournalPage() {
 
                                     {dream.image_url && (
                                         <div className="image-container" style={{ maxHeight: '200px', marginBottom: '1rem' }}>
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
                                             <img src={dream.image_url} alt="Dream" className="dream-image" />
                                         </div>
                                     )}

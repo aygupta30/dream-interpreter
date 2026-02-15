@@ -166,6 +166,7 @@ export default function Home() {
 
               {imageUrl ? (
                 <div className="image-container">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={interpretation.imageUrl} alt="Dream Visualization" className="dream-image" />
                 </div>
               ) : (
