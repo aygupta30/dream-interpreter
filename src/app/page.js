@@ -1,7 +1,10 @@
 "use client";
 import { useState } from 'react';
+import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
+import Link from 'next/link';
 
 export default function Home() {
+  const { isSignedIn, user } = useUser();
   const [dream, setDream] = useState('');
   const [interpretation, setInterpretation] = useState('');
   const [loading, setLoading] = useState(false);
@@ -10,12 +13,17 @@ export default function Home() {
   const [imageUrl, setImageUrl] = useState('');
   const [imageLoading, setImageLoading] = useState(false);
 
+  // Journal State
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!dream) return;
     setLoading(true);
     setInterpretation('');
-    setImageUrl(''); // Reset image on new dream
+    setImageUrl('');
+    setSaved(false); // Reset saved state
 
     try {
       const res = await fetch('/api/interpret', {
@@ -58,11 +66,57 @@ export default function Home() {
     }
   };
 
+  const handleSaveDream = async () => {
+    if (!isSignedIn || !interpretation) return;
+    setSaving(true);
+    try {
+      const res = await fetch('/api/journal', {
+        method: 'POST',
+        body: JSON.stringify({
+          dream_text: dream,
+          interpretation: interpretation,
+          image_url: imageUrl || null
+        })
+      });
+      if (res.ok) {
+        setSaved(true);
+      } else {
+        alert('Failed to save to journal. Did you run the setup?');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Error saving dream');
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <main className="container">
       {/* Background Orbs */}
       <div className="orb orb-1" />
       <div className="orb orb-2" />
+
+      {/* Header with Auth */}
+      <header style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 100 }}>
+        <SignedOut>
+          <SignInButton mode="modal">
+            <button className="submit-btn" style={{ width: 'auto', padding: '0.5rem 1rem', fontSize: '0.9rem', marginTop: 0 }}>
+              Sign In to Save Dreams
+            </button>
+          </SignInButton>
+        </SignedOut>
+        <SignedIn>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <Link href="/journal">
+              <button className="submit-btn" style={{ width: 'auto', padding: '0.5rem 1rem', fontSize: '0.9rem', marginTop: 0, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)' }}>
+                My Journal 📖
+              </button>
+            </Link>
+            <UserButton afterSignOutUrl="/" />
+          </div>
+        </SignedIn>
+      </header>
 
       <div className="glass-panel">
         <h1 className="title">Dream Interpreter</h1>
@@ -91,11 +145,28 @@ export default function Home() {
           <div className="result-area">
             {/* Header Section: Summary, Mood, Tags */}
             <div className="mb-6 border-b border-white/10 pb-4">
-              <h2 className="result-title">Dream Analysis</h2>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h2 className="result-title">Dream Analysis</h2>
+                <SignedIn>
+                  {!saved ? (
+                    <button
+                      onClick={handleSaveDream}
+                      disabled={saving}
+                      style={{ background: 'transparent', border: '1px solid #8ec5fc', color: '#8ec5fc', padding: '0.3rem 0.8rem', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s' }}
+                      onMouseOver={(e) => e.target.style.background = 'rgba(142, 197, 252, 0.1)'}
+                      onMouseOut={(e) => e.target.style.background = 'transparent'}
+                    >
+                      {saving ? 'Saving...' : '💾 Save to Journal'}
+                    </button>
+                  ) : (
+                    <span style={{ color: '#4ade80', fontSize: '0.9rem' }}>✅ Saved</span>
+                  )}
+                </SignedIn>
+              </div>
 
               {imageUrl ? (
                 <div className="image-container">
-                  <img src={imageUrl} alt="Dream Visualization" className="dream-image" />
+                  <img src={interpretation.imageUrl} alt="Dream Visualization" className="dream-image" />
                 </div>
               ) : (
                 <button
