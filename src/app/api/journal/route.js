@@ -20,8 +20,10 @@ export async function GET(request) {
 
 export async function POST(request) {
     const { userId } = auth();
+    console.log("API POST /api/journal - Auth Check. UserId:", userId);
+
     if (!userId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        return NextResponse.json({ error: 'Unauthorized', debug_userId: userId }, { status: 401 });
     }
 
     try {
