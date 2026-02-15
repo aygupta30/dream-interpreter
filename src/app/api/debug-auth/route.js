@@ -9,11 +9,19 @@ export async function GET(request) {
     const secretKey = process.env.CLERK_SECRET_KEY;
     const pubKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
+    // Check for session cookie
+    const cookieHeader = request.headers.get('cookie') || '';
+    const hasSessionCookie = cookieHeader.includes('__session');
+
     return NextResponse.json({
         auth_status: {
             userId: userId,
             sessionId: sessionId,
             isLoaded: true
+        },
+        cookie_check: {
+            has_session_cookie: hasSessionCookie,
+            cookie_length: cookieHeader.length
         },
         env_check: {
             CLERK_SECRET_KEY_EXISTS: !!secretKey,
