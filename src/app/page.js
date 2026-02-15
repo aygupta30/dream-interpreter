@@ -72,20 +72,27 @@ export default function Home() {
     try {
       const res = await fetch('/api/journal', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           dream_text: dream,
           interpretation: interpretation,
           image_url: imageUrl || null
         })
       });
-      if (res.ok) {
+
+      // Always parse the JSON to get the error message
+      const data = await res.json();
+      console.log("Journal Save Response:", data);
+
+      if (res.ok && data.success) {
         setSaved(true);
       } else {
-        alert('Failed to save to journal. Did you run the setup?');
+        console.error("Journal Save Failed:", data);
+        alert(`Failed to save: ${data.error || 'Unknown error'}`);
       }
     } catch (e) {
-      console.error(e);
-      alert('Error saving dream');
+      console.error("Network Custom Error:", e);
+      alert(`Error saving dream: ${e.message}`);
     } finally {
       setSaving(false);
     }
