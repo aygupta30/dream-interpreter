@@ -82,7 +82,6 @@ export default function Home() {
 
       // Always parse the JSON to get the error message
       const data = await res.json();
-      console.log("Journal Save Response:", data);
 
       if (res.ok && data.success) {
         setSaved(true);

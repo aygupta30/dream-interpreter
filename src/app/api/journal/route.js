@@ -22,28 +22,20 @@ export async function GET(request) {
 
 export async function POST(request) {
     const { userId } = await auth();
-    console.log("API POST /api/journal - Auth Check. UserId:", userId);
 
     if (!userId) {
-        return NextResponse.json({ error: 'Unauthorized', debug_userId: userId }, { status: 401 });
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     try {
         const { dream_text, interpretation, image_url } = await request.json();
 
-        console.log("Saving Dream for User:", userId);
-        console.log("Dream Text Length:", dream_text?.length);
-
         // Safety check
         if (!dream_text || !interpretation) {
-            console.error("Missing Data");
             return NextResponse.json({ error: 'Missing Data' }, { status: 400 });
         }
 
-        // Explicitly stringify interpretation for JSONB compatibility if needed, 
-        // though strictly pg often handles objects. Let's force it to ensure compatibility.
-        // Actually, let's keep it as object first but log if it fails.
-        // Better: let's try to stringify it to be safe for the SQL template if the driver expects a string for JSONB.
+        // Explicitly stringify interpretation for JSONB compatibility
         const interpretationJson = JSON.stringify(interpretation);
 
         await sql`
@@ -51,7 +43,6 @@ export async function POST(request) {
           VALUES (${userId}, ${dream_text}, ${interpretationJson}::jsonb, ${image_url});
         `;
 
-        console.log("Dream Saved Successfully");
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error("Database Error:", error);
