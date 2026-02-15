@@ -1,6 +1,12 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
-export default clerkMiddleware();
+export default clerkMiddleware((auth, req) => {
+    // Add a header to confirm middleware is running
+    const res = NextResponse.next();
+    res.headers.set('x-middleware-run', 'true');
+    return res;
+});
 
 export const config = {
     matcher: [
